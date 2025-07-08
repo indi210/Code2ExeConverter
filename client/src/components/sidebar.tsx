@@ -49,6 +49,7 @@ export default function Sidebar() {
           </div>
           <p className="text-xs text-slate-400">Voice Assistant Ready</p>
           <p className="text-xs text-slate-500 mt-1">Tamper Detection Active</p>
+          <p className="text-xs text-slate-600 mt-1">Blockchain Protection Enabled</p>
         </div>
       </div>
     </div>

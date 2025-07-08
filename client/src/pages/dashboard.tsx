@@ -9,6 +9,9 @@ import BuildHistory from "@/components/build-history";
 import VoiceNotification from "@/components/voice-notification";
 import AISuggestions from "@/components/ai-suggestions";
 import SecurityStatus from "@/components/security-status";
+import EmailAlerts from "@/components/email-alerts";
+import BlockchainVerification from "@/components/blockchain-verification";
+import SystemStats from "@/components/system-stats";
 import { Clock, Bell, UserCircle } from "lucide-react";
 
 export default function Dashboard() {
@@ -97,7 +100,15 @@ export default function Dashboard() {
             <SecurityStatus />
           </div>
 
-          <BuildHistory />
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <EmailAlerts />
+            <BlockchainVerification buildId={currentBuildId} />
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <SystemStats />
+            <BuildHistory />
+          </div>
         </main>
       </div>
     </div>

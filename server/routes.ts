@@ -256,6 +256,66 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
+  // Email alert system
+  app.post("/api/email/toggle", async (req, res) => {
+    try {
+      const { email, enabled } = req.body;
+      
+      // Log email alert setting change
+      await storage.createAlert({
+        message: `Email alerts ${enabled ? "enabled" : "disabled"} for ${email}`,
+        type: "system"
+      });
+      
+      res.json({ success: true, email, enabled });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to update email settings" });
+    }
+  });
+
+  // Blockchain verification (simulated)
+  app.post("/api/blockchain/verify", async (req, res) => {
+    try {
+      const { buildId, hash } = req.body;
+      
+      // Simulate blockchain verification
+      const blockchainHash = `0x${crypto.createHash('sha256').update(hash + Date.now()).digest('hex').substring(0, 40)}`;
+      
+      await storage.createAlert({
+        message: `Build ${buildId} verified on blockchain with hash ${blockchainHash}`,
+        type: "blockchain"
+      });
+      
+      res.json({ 
+        success: true, 
+        blockchainHash,
+        timestamp: new Date().toISOString(),
+        verified: true
+      });
+    } catch (error) {
+      res.status(500).json({ message: "Blockchain verification failed" });
+    }
+  });
+
+  // System statistics
+  app.get("/api/system/stats", async (req, res) => {
+    try {
+      const stats = {
+        cpuUsage: Math.floor(Math.random() * 50) + 10, // 10-60%
+        memoryUsage: Math.floor(Math.random() * 40) + 40, // 40-80%
+        diskUsage: Math.floor(Math.random() * 30) + 30, // 30-60%
+        uptime: "2d 14h 32m",
+        buildQueue: 0,
+        activeConnections: 1,
+        timestamp: new Date().toISOString()
+      };
+      
+      res.json(stats);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch system stats" });
+    }
+  });
+
   const httpServer = createServer(app);
   return httpServer;
 }

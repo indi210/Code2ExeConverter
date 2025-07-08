@@ -4,7 +4,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
 import FileUpload from "@/components/ui/file-upload";
-import { Terminal, Github, Download, Info } from "lucide-react";
+import AdvancedBuildOptions, { BuildOptions } from "@/components/advanced-build-options";
+import { Terminal, Github, Download, Info, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -16,8 +17,19 @@ interface BuildInterfaceProps {
 export default function BuildInterface({ onBuildStart, onVoiceMessage }: BuildInterfaceProps) {
   const [githubUrl, setGithubUrl] = useState("");
   const [isBuilding, setIsBuilding] = useState(false);
-  const [oneFile, setOneFile] = useState(true);
-  const [noConsole, setNoConsole] = useState(false);
+  const [showAdvanced, setShowAdvanced] = useState(false);
+  const [buildOptions, setBuildOptions] = useState<BuildOptions>({
+    oneFile: true,
+    noConsole: false,
+    addIcon: false,
+    iconPath: "",
+    optimizationLevel: "normal",
+    additionalFiles: [],
+    customName: "",
+    hiddenImports: "",
+    excludeModules: "",
+    runtimeHooks: ""
+  });
   const { toast } = useToast();
 
   const handleFileUpload = async (file: File) => {
@@ -27,6 +39,7 @@ export default function BuildInterface({ onBuildStart, onVoiceMessage }: BuildIn
     try {
       const formData = new FormData();
       formData.append('file', file);
+      formData.append('buildOptions', JSON.stringify(buildOptions));
       
       const response = await apiRequest("POST", "/api/build/python", formData);
       const data = await response.json();
@@ -84,7 +97,8 @@ export default function BuildInterface({ onBuildStart, onVoiceMessage }: BuildIn
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    <div className="space-y-6">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Terminal File Upload */}
       <div className="bg-slate-750 rounded-xl border border-slate-600 p-6">
         <div className="flex items-center space-x-3 mb-4">
@@ -98,20 +112,29 @@ export default function BuildInterface({ onBuildStart, onVoiceMessage }: BuildIn
 
         <div className="mt-4 space-y-3">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-slate-400">PyInstaller Options:</span>
+            <span className="text-slate-400">Quick Options:</span>
+            <Button
+              variant="ghost"
+              size="sm"
+              onClick={() => setShowAdvanced(!showAdvanced)}
+              className="text-blue-400 hover:text-blue-300 p-1"
+            >
+              <Settings className="w-4 h-4 mr-1" />
+              Advanced
+            </Button>
           </div>
           <label className="flex items-center space-x-2 cursor-pointer">
             <Checkbox
-              checked={oneFile}
-              onCheckedChange={(checked) => setOneFile(checked as boolean)}
+              checked={buildOptions.oneFile}
+              onCheckedChange={(checked) => setBuildOptions({...buildOptions, oneFile: checked as boolean})}
               className="bg-slate-800 border-slate-600"
             />
             <span className="text-slate-300">One-file executable</span>
           </label>
           <label className="flex items-center space-x-2 cursor-pointer">
             <Checkbox
-              checked={noConsole}
-              onCheckedChange={(checked) => setNoConsole(checked as boolean)}
+              checked={buildOptions.noConsole}
+              onCheckedChange={(checked) => setBuildOptions({...buildOptions, noConsole: checked as boolean})}
               className="bg-slate-800 border-slate-600"
             />
             <span className="text-slate-300">No console window</span>
@@ -166,6 +189,11 @@ export default function BuildInterface({ onBuildStart, onVoiceMessage }: BuildIn
           <p className="text-xs text-slate-500 mt-1">AI will optimize, secure and add legal protection to repositories</p>
         </div>
       </div>
+      </div>
+
+      {showAdvanced && (
+        <AdvancedBuildOptions onOptionsChange={setBuildOptions} />
+      )}
     </div>
   );
 }
