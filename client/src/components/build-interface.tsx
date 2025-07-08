@@ -161,9 +161,9 @@ export default function BuildInterface({ onBuildStart, onVoiceMessage }: BuildIn
         <div className="mt-4 p-3 bg-slate-800 rounded-lg border border-slate-600">
           <div className="flex items-center space-x-2 text-sm">
             <Info className="w-4 h-4 text-blue-400" />
-            <span className="text-slate-300">Auto-enhancement available</span>
+            <span className="text-slate-300">Blockchain-Ready ID & Legal Hashing</span>
           </div>
-          <p className="text-xs text-slate-500 mt-1">AI will optimize and secure downloaded repositories</p>
+          <p className="text-xs text-slate-500 mt-1">AI will optimize, secure and add legal protection to repositories</p>
         </div>
       </div>
     </div>

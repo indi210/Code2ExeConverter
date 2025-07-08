@@ -94,7 +94,8 @@ export default function AuthModal({ onAuthenticated, onVoiceMessage }: AuthModal
         </div>
         
         <div className="mt-6 text-center">
-          <p className="text-xs text-slate-500">Created by Ervin Remus Radosavlevici</p>
+          <p className="text-xs text-slate-500">Created & Copyright © 2025 Ervin Remus Radosavlevici</p>
+          <p className="text-xs text-slate-600 mt-1">Quantum Intelligence Full Edition — LEGALLY PROTECTED</p>
         </div>
       </div>
     </div>

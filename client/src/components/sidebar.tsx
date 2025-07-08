@@ -48,6 +48,7 @@ export default function Sidebar() {
             <span className="text-sm font-medium text-green-400">System Online</span>
           </div>
           <p className="text-xs text-slate-400">Voice Assistant Ready</p>
+          <p className="text-xs text-slate-500 mt-1">Tamper Detection Active</p>
         </div>
       </div>
     </div>

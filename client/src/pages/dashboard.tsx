@@ -7,6 +7,8 @@ import SecurityPanel from "@/components/security-panel";
 import DownloadCenter from "@/components/download-center";
 import BuildHistory from "@/components/build-history";
 import VoiceNotification from "@/components/voice-notification";
+import AISuggestions from "@/components/ai-suggestions";
+import SecurityStatus from "@/components/security-status";
 import { Clock, Bell, UserCircle } from "lucide-react";
 
 export default function Dashboard() {
@@ -85,6 +87,14 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <SecurityPanel buildId={currentBuildId} />
             <DownloadCenter buildId={currentBuildId} />
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            <AISuggestions 
+              buildId={currentBuildId} 
+              onVoiceMessage={showVoiceMessage}
+            />
+            <SecurityStatus />
           </div>
 
           <BuildHistory />

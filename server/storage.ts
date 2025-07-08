@@ -61,7 +61,13 @@ export class MemStorage implements IStorage {
     const build: Build = { 
       ...insertBuild, 
       id, 
-      createdAt: new Date()
+      createdAt: new Date(),
+      status: insertBuild.status || "pending",
+      sourceUrl: insertBuild.sourceUrl || null,
+      hash: insertBuild.hash || null,
+      buildTime: insertBuild.buildTime || null,
+      fileCount: insertBuild.fileCount || null,
+      errorMessage: insertBuild.errorMessage || null
     };
     this.builds.set(id, build);
     return build;
@@ -91,7 +97,8 @@ export class MemStorage implements IStorage {
     const alert: Alert = { 
       ...insertAlert, 
       id, 
-      timestamp: new Date()
+      timestamp: new Date(),
+      type: insertAlert.type || "security"
     };
     this.alerts.set(id, alert);
     return alert;
@@ -105,7 +112,11 @@ export class MemStorage implements IStorage {
 
   async createDownloadableFile(insertFile: InsertDownloadableFile): Promise<DownloadableFile> {
     const id = this.currentFileId++;
-    const file: DownloadableFile = { ...insertFile, id };
+    const file: DownloadableFile = { 
+      ...insertFile, 
+      id,
+      buildId: insertFile.buildId || null
+    };
     this.downloadableFiles.set(id, file);
     return file;
   }

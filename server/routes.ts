@@ -1,4 +1,4 @@
-import type { Express } from "express";
+import type { Express, Request } from "express";
 import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import multer from "multer";
@@ -8,6 +8,10 @@ import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
 import { insertBuildSchema, insertAlertSchema } from "@shared/schema";
+
+interface MulterRequest extends Request {
+  file?: Express.Multer.File;
+}
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const UPLOADS_DIR = path.join(__dirname, "../uploads");
@@ -71,7 +75,7 @@ async function createLegalFiles(buildDir: string, hash: string) {
   const licenseFile = path.join(buildDir, "LICENSE.txt");
   
   const hashContent = `Author: ${OWNER}\nTimestamp: ${new Date().toISOString()}\nSHA256: ${hash}\n`;
-  const licenseContent = `This software is protected by international copyright law.\nCreated by ${OWNER}\n`;
+  const licenseContent = `This software is protected by AI blockchain policy.\nCreated by: ${OWNER}\nCopyright © 2025 ${OWNER}\nLEGALLY PROTECTED`;
   
   fs.writeFileSync(hashFile, hashContent);
   fs.writeFileSync(licenseFile, licenseContent);
@@ -100,7 +104,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   });
 
   // Upload Python file and build
-  app.post("/api/build/python", upload.single("file"), async (req, res) => {
+  app.post("/api/build/python", upload.single("file"), async (req: MulterRequest, res) => {
     try {
       if (!req.file) {
         return res.status(400).json({ message: "No file uploaded" });
@@ -211,6 +215,44 @@ export async function registerRoutes(app: Express): Promise<Server> {
       res.json(alerts);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch alerts" });
+    }
+  });
+
+  // AI Feature Suggestions
+  app.post("/api/ai/suggestions", async (req, res) => {
+    try {
+      const { buildId } = req.body;
+      
+      // Simulated AI suggestions based on the Python script
+      const suggestions = [
+        "Add login system",
+        "Implement dark mode",
+        "Add file storage",
+        "Enable blockchain verification",
+        "Add email alert system"
+      ];
+      
+      res.json({ suggestions, buildId });
+    } catch (error) {
+      res.status(500).json({ message: "Failed to generate AI suggestions" });
+    }
+  });
+
+  // Memory/Tamper detection status
+  app.get("/api/security/status", async (req, res) => {
+    try {
+      const alerts = await storage.getAlerts();
+      const securityStatus = {
+        totalAlerts: alerts.length,
+        recentAlerts: alerts.slice(0, 5),
+        systemStatus: "online",
+        tamperDetected: alerts.some(alert => alert.message.includes("tamper")),
+        lastCheck: new Date().toISOString()
+      };
+      
+      res.json(securityStatus);
+    } catch (error) {
+      res.status(500).json({ message: "Failed to fetch security status" });
     }
   });
 
