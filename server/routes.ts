@@ -35,7 +35,7 @@ function generateSHA256(filePath: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const hash = crypto.createHash('sha256');
     const stream = fs.createReadStream(filePath);
-    
+
     stream.on('data', (data) => hash.update(data));
     stream.on('end', () => resolve(hash.digest('hex')));
     stream.on('error', reject);
@@ -45,14 +45,14 @@ function generateSHA256(filePath: string): Promise<string> {
 function generateFolderHash(folderPath: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const hash = crypto.createHash('sha256');
-    
+
     function processDir(dirPath: string) {
       try {
         const files = fs.readdirSync(dirPath);
         for (const file of files) {
           const fullPath = path.join(dirPath, file);
           const stat = fs.statSync(fullPath);
-          
+
           if (stat.isDirectory()) {
             processDir(fullPath);
           } else {
@@ -64,7 +64,7 @@ function generateFolderHash(folderPath: string): Promise<string> {
         reject(error);
       }
     }
-    
+
     processDir(folderPath);
     resolve(hash.digest('hex'));
   });
@@ -73,13 +73,13 @@ function generateFolderHash(folderPath: string): Promise<string> {
 async function createLegalFiles(buildDir: string, hash: string) {
   const hashFile = path.join(buildDir, "project_hash.txt");
   const licenseFile = path.join(buildDir, "LICENSE.txt");
-  
+
   const hashContent = `Author: ${OWNER}\nTimestamp: ${new Date().toISOString()}\nSHA256: ${hash}\n`;
   const licenseContent = `This software is protected by AI blockchain policy.\nCreated by: ${OWNER}\nCopyright © 2025 ${OWNER}\nLEGALLY PROTECTED`;
-  
+
   fs.writeFileSync(hashFile, hashContent);
   fs.writeFileSync(licenseFile, licenseContent);
-  
+
   return [
     { filename: "project_hash.txt", filepath: hashFile, filesize: Buffer.byteLength(hashContent) },
     { filename: "LICENSE.txt", filepath: licenseFile, filesize: Buffer.byteLength(licenseContent) }
@@ -87,11 +87,11 @@ async function createLegalFiles(buildDir: string, hash: string) {
 }
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  
+
   // Authentication endpoint
   app.post("/api/auth", async (req, res) => {
     const { password } = req.body;
-    
+
     if (password !== SECURE_PASSWORD) {
       await storage.createAlert({
         message: "Unauthorized access attempt detected",
@@ -99,7 +99,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       });
       return res.status(401).json({ message: "Invalid password" });
     }
-    
+
     res.json({ success: true, message: "Authentication successful" });
   });
 
@@ -135,7 +135,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/build/github", async (req, res) => {
     try {
       const { url } = req.body;
-      
+
       if (!url || !url.includes('github.com')) {
         return res.status(400).json({ message: "Invalid GitHub URL" });
       }
@@ -222,7 +222,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/ai/suggestions", async (req, res) => {
     try {
       const { buildId } = req.body;
-      
+
       // Simulated AI suggestions based on the Python script
       const suggestions = [
         "Add login system",
@@ -231,7 +231,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         "Enable blockchain verification",
         "Add email alert system"
       ];
-      
+
       res.json({ suggestions, buildId });
     } catch (error) {
       res.status(500).json({ message: "Failed to generate AI suggestions" });
@@ -249,7 +249,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         tamperDetected: alerts.some(alert => alert.message.includes("tamper")),
         lastCheck: new Date().toISOString()
       };
-      
+
       res.json(securityStatus);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch security status" });
@@ -260,13 +260,13 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/email/toggle", async (req, res) => {
     try {
       const { email, enabled } = req.body;
-      
+
       // Log email alert setting change
       await storage.createAlert({
         message: `Email alerts ${enabled ? "enabled" : "disabled"} for ${email}`,
         type: "system"
       });
-      
+
       res.json({ success: true, email, enabled });
     } catch (error) {
       res.status(500).json({ message: "Failed to update email settings" });
@@ -277,15 +277,15 @@ export async function registerRoutes(app: Express): Promise<Server> {
   app.post("/api/blockchain/verify", async (req, res) => {
     try {
       const { buildId, hash } = req.body;
-      
+
       // Simulate blockchain verification
       const blockchainHash = `0x${crypto.createHash('sha256').update(hash + Date.now()).digest('hex').substring(0, 40)}`;
-      
+
       await storage.createAlert({
         message: `Build ${buildId} verified on blockchain with hash ${blockchainHash}`,
         type: "blockchain"
       });
-      
+
       res.json({ 
         success: true, 
         blockchainHash,
@@ -309,7 +309,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
         activeConnections: 1,
         timestamp: new Date().toISOString()
       };
-      
+
       res.json(stats);
     } catch (error) {
       res.status(500).json({ message: "Failed to fetch system stats" });
@@ -322,7 +322,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
 
 async function buildPythonFile(filePath: string, originalName: string, buildId: number) {
   const startTime = Date.now();
-  
+
   try {
     const buildDir = path.join(BUILDS_DIR, `build_${buildId}`);
     fs.mkdirSync(buildDir, { recursive: true });
@@ -333,23 +333,23 @@ async function buildPythonFile(filePath: string, originalName: string, buildId: 
 
     // Run PyInstaller
     const pyinstaller = spawn('pyinstaller', ['--onefile', '--distpath', buildDir, targetPath]);
-    
+
     pyinstaller.on('close', async (code) => {
       const buildTime = Math.floor((Date.now() - startTime) / 1000);
-      
+
       if (code === 0) {
         // Build successful
         const hash = await generateSHA256(targetPath);
         const legalFiles = await createLegalFiles(buildDir, hash);
-        
+
         // Find the executable
         const exeName = originalName.replace('.py', '.exe');
         const exePath = path.join(buildDir, exeName);
-        
+
         let executableSize = 0;
         if (fs.existsSync(exePath)) {
           executableSize = fs.statSync(exePath).size;
-          
+
           // Create downloadable file entries
           await storage.createDownloadableFile({
             buildId,
@@ -408,11 +408,11 @@ async function buildPythonFile(filePath: string, originalName: string, buildId: 
 
 async function processGitHubRepo(url: string, buildId: number) {
   const startTime = Date.now();
-  
+
   try {
     // Convert GitHub URL to zip download URL
     const zipUrl = url.replace('github.com', 'github.com') + '/archive/refs/heads/main.zip';
-    
+
     // This is a simplified implementation - in production you'd want proper git cloning
     await storage.updateBuild(buildId, {
       status: "success",
@@ -420,7 +420,7 @@ async function processGitHubRepo(url: string, buildId: number) {
       buildTime: Math.floor((Date.now() - startTime) / 1000),
       fileCount: 10 // Simulated
     });
-    
+
   } catch (error) {
     const buildTime = Math.floor((Date.now() - startTime) / 1000);
     await storage.updateBuild(buildId, {

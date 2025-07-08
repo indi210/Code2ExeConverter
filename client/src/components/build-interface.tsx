@@ -3,8 +3,12 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Textarea } from "@/components/ui/textarea";
+import { Settings, Code, Package } from "lucide-react";
+import { AdvancedBuildOptions } from "./advanced-build-options";
 import FileUpload from "@/components/ui/file-upload";
-import AdvancedBuildOptions, { BuildOptions } from "@/components/advanced-build-options";
 import { Terminal, Github, Download, Info, Settings } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
@@ -14,36 +18,47 @@ interface BuildInterfaceProps {
   onVoiceMessage: (message: string) => void;
 }
 
-export default function BuildInterface({ onBuildStart, onVoiceMessage }: BuildInterfaceProps) {
-  const [githubUrl, setGithubUrl] = useState("");
+interface BuildOptions {
+  oneFile: boolean;
+  console: boolean;
+  icon: string;
+  name: string;
+  hiddenImports: string;
+  excludeModules: string;
+  additionalFiles: string;
+  outputDir: string;
+}
+
+export function BuildInterface({ onBuildStart, onVoiceMessage }: BuildInterfaceProps) {
   const [isBuilding, setIsBuilding] = useState(false);
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [urlInput, setUrlInput] = useState("");
+  const [buildMode, setBuildMode] = useState<"file" | "url">("file");
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [buildOptions, setBuildOptions] = useState<BuildOptions>({
     oneFile: true,
-    noConsole: false,
-    addIcon: false,
-    iconPath: "",
-    optimizationLevel: "normal",
-    additionalFiles: [],
-    customName: "",
+    console: false,
+    icon: "",
+    name: "",
     hiddenImports: "",
     excludeModules: "",
-    runtimeHooks: ""
+    additionalFiles: "",
+    outputDir: "dist"
   });
   const { toast } = useToast();
 
   const handleFileUpload = async (file: File) => {
     setIsBuilding(true);
     onVoiceMessage("Building Windows installer.");
-    
+
     try {
       const formData = new FormData();
       formData.append('file', file);
       formData.append('buildOptions', JSON.stringify(buildOptions));
-      
+
       const response = await apiRequest("POST", "/api/build/python", formData);
       const data = await response.json();
-      
+
       onBuildStart(data.buildId);
       toast({
         title: "Build Started",
@@ -62,7 +77,7 @@ export default function BuildInterface({ onBuildStart, onVoiceMessage }: BuildIn
   };
 
   const handleGithubBuild = async () => {
-    if (!githubUrl || !githubUrl.includes('github.com')) {
+    if (!urlInput || !urlInput.includes('github.com')) {
       toast({
         title: "Invalid URL",
         description: "Please enter a valid GitHub repository URL",
@@ -73,11 +88,11 @@ export default function BuildInterface({ onBuildStart, onVoiceMessage }: BuildIn
 
     setIsBuilding(true);
     onVoiceMessage("Downloading GitHub repository.");
-    
+
     try {
-      const response = await apiRequest("POST", "/api/build/github", { url: githubUrl });
+      const response = await apiRequest("POST", "/api/build/github", { url: urlInput });
       const data = await response.json();
-      
+
       onBuildStart(data.buildId);
       onVoiceMessage("Repository downloaded. Ready for enhancement.");
       toast({
@@ -96,6 +111,49 @@ export default function BuildInterface({ onBuildStart, onVoiceMessage }: BuildIn
     }
   };
 
+  const handleBuild = async () => {
+    if (!selectedFile && !urlInput) {
+      onVoiceMessage("Please select a file or enter a URL first");
+      return;
+    }
+
+    setIsBuilding(true);
+    onVoiceMessage("Initiating build process...");
+
+    try {
+      const formData = new FormData();
+
+      if (buildMode === "file" && selectedFile) {
+        formData.append("file", selectedFile);
+        formData.append("filename", selectedFile.name);
+        formData.append("buildOptions", JSON.stringify(buildOptions));
+      } else if (buildMode === "url" && urlInput) {
+        formData.append("url", urlInput);
+        formData.append("buildOptions", JSON.stringify(buildOptions));
+      }
+
+      const response = await fetch("/api/build/python", {
+        method: "POST",
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        onBuildStart(data.buildId);
+        onVoiceMessage("Build initiated successfully");
+        setSelectedFile(null);
+        setUrlInput("");
+      } else {
+        onVoiceMessage(`Build failed: ${data.message}`);
+      }
+    } catch (error) {
+      onVoiceMessage("Build failed due to network error");
+    } finally {
+      setIsBuilding(false);
+    }
+  };
+
   return (
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -107,7 +165,7 @@ export default function BuildInterface({ onBuildStart, onVoiceMessage }: BuildIn
           </div>
           <h3 className="text-lg font-semibold text-white">Terminal to EXE</h3>
         </div>
-        
+
         <FileUpload onFileSelect={handleFileUpload} disabled={isBuilding} />
 
         <div className="mt-4 space-y-3">
@@ -133,8 +191,8 @@ export default function BuildInterface({ onBuildStart, onVoiceMessage }: BuildIn
           </label>
           <label className="flex items-center space-x-2 cursor-pointer">
             <Checkbox
-              checked={buildOptions.noConsole}
-              onCheckedChange={(checked) => setBuildOptions({...buildOptions, noConsole: checked as boolean})}
+              checked={buildOptions.console}
+              onCheckedChange={(checked) => setBuildOptions({...buildOptions, console: checked as boolean})}
               className="bg-slate-800 border-slate-600"
             />
             <span className="text-slate-300">No console window</span>
@@ -150,7 +208,7 @@ export default function BuildInterface({ onBuildStart, onVoiceMessage }: BuildIn
           </div>
           <h3 className="text-lg font-semibold text-white">GitHub Repository</h3>
         </div>
-        
+
         <div className="space-y-4">
           <div>
             <Label htmlFor="github-url" className="block text-sm font-medium text-slate-300 mb-2">
@@ -159,17 +217,17 @@ export default function BuildInterface({ onBuildStart, onVoiceMessage }: BuildIn
             <Input
               id="github-url"
               type="url"
-              value={githubUrl}
-              onChange={(e) => setGithubUrl(e.target.value)}
+              value={urlInput}
+              onChange={(e) => setUrlInput(e.target.value)}
               placeholder="https://github.com/username/repository"
               className="bg-slate-800 border-slate-600 text-white placeholder-slate-400"
               disabled={isBuilding}
             />
           </div>
-          
+
           <Button
             onClick={handleGithubBuild}
-            disabled={isBuilding || !githubUrl}
+            disabled={isBuilding || !urlInput}
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3"
           >
             {isBuilding ? (
@@ -192,8 +250,11 @@ export default function BuildInterface({ onBuildStart, onVoiceMessage }: BuildIn
       </div>
 
       {showAdvanced && (
-        <AdvancedBuildOptions onOptionsChange={setBuildOptions} />
-      )}
+          <AdvancedBuildOptions 
+            options={buildOptions}
+            updateOptions={(updates) => setBuildOptions(prev => ({ ...prev, ...updates }))}
+          />
+        )}
     </div>
   );
 }

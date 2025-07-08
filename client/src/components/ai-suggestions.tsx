@@ -49,7 +49,7 @@ export default function AISuggestions({ buildId, onVoiceMessage }: AISuggestions
         <div className="text-sm text-slate-400">
           Get AI-powered suggestions to enhance your project with modern features
         </div>
-        
+
         <Button
           onClick={handleAnalyze}
           disabled={!buildId || suggestionsMutation.isPending}
