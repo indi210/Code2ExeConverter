@@ -17,12 +17,12 @@ export default function AISuggestions({ buildId, onVoiceMessage }: AISuggestions
   const suggestionsMutation = useMutation({
     mutationFn: async () => {
       const response = await apiRequest("POST", "/api/ai/suggestions", { buildId });
-      return response;
+      return response.json();
     },
     onSuccess: (data) => {
-      setSuggestions(data.suggestions);
+      setSuggestions(data?.suggestions || []);
       setShowSuggestions(true);
-      onVoiceMessage("Analyzing for improvements.");
+      onVoiceMessage("AI analysis complete.");
     },
     onError: () => {
       onVoiceMessage("AI analysis failed.");
@@ -63,7 +63,7 @@ export default function AISuggestions({ buildId, onVoiceMessage }: AISuggestions
           Analyze for Improvements
         </Button>
 
-        {showSuggestions && suggestions.length > 0 && (
+        {showSuggestions && suggestions && suggestions.length > 0 && (
           <div className="space-y-2">
             <div className="flex items-center space-x-2 text-sm font-medium text-purple-300">
               <Lightbulb className="w-4 h-4" />
