@@ -7,9 +7,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Settings, Code, Package } from "lucide-react";
-import { AdvancedBuildOptions } from "./advanced-build-options";
+import AdvancedBuildOptions from "./advanced-build-options";
 import FileUpload from "@/components/ui/file-upload";
-import { Terminal, Github, Download, Info, Settings } from "lucide-react";
+import { Terminal, Github, Download, Info } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { apiRequest } from "@/lib/queryClient";
 
@@ -29,7 +29,7 @@ interface BuildOptions {
   outputDir: string;
 }
 
-export function BuildInterface({ onBuildStart, onVoiceMessage }: BuildInterfaceProps) {
+export default function BuildInterface({ onBuildStart, onVoiceMessage }: BuildInterfaceProps) {
   const [isBuilding, setIsBuilding] = useState(false);
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [urlInput, setUrlInput] = useState("");
@@ -251,8 +251,7 @@ export function BuildInterface({ onBuildStart, onVoiceMessage }: BuildInterfaceP
 
       {showAdvanced && (
           <AdvancedBuildOptions 
-            options={buildOptions}
-            updateOptions={(updates) => setBuildOptions(prev => ({ ...prev, ...updates }))}
+            onOptionsChange={(options) => setBuildOptions(options)}
           />
         )}
     </div>
