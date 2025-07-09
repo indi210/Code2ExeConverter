@@ -158,12 +158,15 @@ export default function BuildInterface({ onBuildStart, onVoiceMessage }: BuildIn
     <div className="space-y-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
       {/* Terminal File Upload */}
-      <div className="bg-slate-750 rounded-xl border border-slate-600 p-6">
+      <div className="bg-gradient-to-br from-slate-800 to-slate-750 rounded-xl border border-slate-600 p-6 shadow-xl hover:shadow-2xl transition-all duration-300">
         <div className="flex items-center space-x-3 mb-4">
-          <div className="w-8 h-8 bg-yellow-600 rounded-lg flex items-center justify-center">
-            <Terminal className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 bg-gradient-to-br from-yellow-500 to-orange-600 rounded-xl flex items-center justify-center shadow-lg">
+            <Terminal className="w-6 h-6 text-white" />
           </div>
-          <h3 className="text-lg font-semibold text-white">Terminal to EXE</h3>
+          <div>
+            <h3 className="text-xl font-bold text-white">🔥 Quantum Python to EXE</h3>
+            <p className="text-xs text-slate-400">Ultra-secure executable generation</p>
+          </div>
         </div>
 
         <FileUpload onFileSelect={handleFileUpload} disabled={isBuilding} />
@@ -201,12 +204,15 @@ export default function BuildInterface({ onBuildStart, onVoiceMessage }: BuildIn
       </div>
 
       {/* GitHub Repository */}
-      <div className="bg-slate-750 rounded-xl border border-slate-600 p-6">
+      <div className="bg-gradient-to-br from-slate-800 to-slate-750 rounded-xl border border-slate-600 p-6 shadow-xl hover:shadow-2xl transition-all duration-300">
         <div className="flex items-center space-x-3 mb-4">
-          <div className="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center">
-            <Github className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 bg-gradient-to-br from-gray-700 to-black rounded-xl flex items-center justify-center shadow-lg">
+            <Github className="w-6 h-6 text-white" />
           </div>
-          <h3 className="text-lg font-semibold text-white">GitHub Repository</h3>
+          <div>
+            <h3 className="text-xl font-bold text-white">⚡ GitHub Repository</h3>
+            <p className="text-xs text-slate-400">AI-enhanced project processing</p>
+          </div>
         </div>
 
         <div className="space-y-4">

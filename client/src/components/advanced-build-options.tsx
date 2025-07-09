@@ -46,13 +46,16 @@ export default function AdvancedBuildOptions({ onOptionsChange }: AdvancedBuildO
   };
 
   return (
-    <Card className="bg-slate-750 border-slate-600">
+    <Card className="bg-gradient-to-br from-slate-800 to-slate-750 border-slate-600 shadow-xl">
       <CardHeader>
         <CardTitle className="flex items-center space-x-3 text-white">
-          <div className="w-8 h-8 bg-indigo-600 rounded-lg flex items-center justify-center">
-            <Settings className="w-5 h-5 text-white" />
+          <div className="w-10 h-10 bg-gradient-to-br from-indigo-600 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+            <Settings className="w-6 h-6 text-white" />
           </div>
-          <span>Advanced Build Options</span>
+          <div>
+            <span className="text-xl font-bold">🛠️ Advanced Build Options</span>
+            <p className="text-xs text-slate-400 font-normal">Professional-grade executable configuration</p>
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">

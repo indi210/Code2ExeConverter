@@ -13,12 +13,14 @@ export default function Sidebar() {
     <div className="fixed left-0 top-0 h-full w-64 bg-slate-750 border-r border-slate-600 z-40">
       <div className="p-6">
         <div className="flex items-center space-x-3 mb-8">
-          <div className="w-10 h-10 quantum-gradient rounded-lg flex items-center justify-center">
-            <Atom className="w-6 h-6 text-white" />
+          <div className="w-12 h-12 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-600 rounded-xl flex items-center justify-center shadow-lg">
+            <span className="text-white font-bold text-xl">🔥</span>
           </div>
           <div>
-            <h1 className="text-xl font-bold text-white">Quantum Intel</h1>
-            <p className="text-xs text-slate-400">Code2EXE Builder</p>
+            <h1 className="text-xl font-bold text-white bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">
+              Quantum Intel
+            </h1>
+            <p className="text-xs text-slate-400 font-medium">v2.0 ULTIMATE Builder</p>
           </div>
         </div>
 
