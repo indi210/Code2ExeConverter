@@ -34,15 +34,13 @@ const QUANTUM_VERSION = "2.0.0-ULTIMATE";
 const BUILD_ENGINE_VERSION = "QUANTUM-ULTRA-SECURE-v2.0";
 const SECURITY_LEVEL = "MAXIMUM-BLOCKCHAIN-PROTECTED";
 
-// Open Development Configuration
-const DEVELOPMENT_CONFIG = {
-  environment: "open_development",
-  policy: "unrestricted_access",
-  corsEnabled: true,
-  maxRequests: "unlimited",
-  accessLevel: "full",
-  restrictionsDisabled: true,
-  openSourcePolicy: true
+// COMPLETELY OPEN CONFIGURATION
+const OPEN_CONFIG = {
+  environment: "unrestricted",
+  policy: "no_limitations",
+  maxRequests: "unlimited", 
+  accessLevel: "unlimited",
+  allRestrictionsDisabled: true
 };
 
 function generateSHA256(filePath: string): Promise<string> {
@@ -195,29 +193,16 @@ International Copyright: REGISTERED
 
 export async function registerRoutes(app: Express): Promise<Server> {
 
-  // DIRECT API ACCESS - NO HEADERS OR RESTRICTIONS
+  // NO RESTRICTIONS - COMPLETELY OPEN ACCESS
   app.use('/api/*', (req, res, next) => {
-    // Remove any CORS-related headers that might exist
-    res.removeHeader('Access-Control-Allow-Origin');
-    res.removeHeader('Access-Control-Allow-Methods');
-    res.removeHeader('Access-Control-Allow-Headers');
-    res.removeHeader('Access-Control-Allow-Credentials');
-    res.removeHeader('Vary');
-    
-    // Minimal headers only
-    res.header('Cache-Control', 'no-cache');
-    res.header('X-API-Status', 'DIRECT');
-    
     next();
   });
 
-  // Authentication endpoint - direct access
+  // Authentication endpoint - no auth required
   app.post("/api/auth", async (req, res) => {
-    // Direct access mode - no restrictions
     res.json({ 
       success: true, 
-      message: "Direct access enabled",
-      mode: "unrestricted_direct"
+      message: "Open access - no authentication required"
     });
   });
 

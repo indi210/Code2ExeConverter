@@ -4,20 +4,8 @@ import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
 
-// NO CORS - DIRECT ACCESS ONLY
+// UNRESTRICTED ACCESS - NO BLOCKING
 app.use((req, res, next) => {
-  // Remove any potential CORS headers
-  res.removeHeader('Access-Control-Allow-Origin');
-  res.removeHeader('Access-Control-Allow-Methods');
-  res.removeHeader('Access-Control-Allow-Headers');
-  res.removeHeader('Access-Control-Allow-Credentials');
-  res.removeHeader('Access-Control-Max-Age');
-  res.removeHeader('Vary');
-  
-  // Essential server headers only
-  res.header('Server', 'QUANTUM-DIRECT-v2.0');
-  res.header('X-Powered-By', 'Quantum-NoRestrictions');
-  
   next();
 });
 
