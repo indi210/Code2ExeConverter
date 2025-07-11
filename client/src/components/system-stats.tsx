@@ -9,21 +9,14 @@ export default function SystemStats() {
     refetchInterval: 5000, // Update every 5 seconds
   });
 
-  // Use real system stats from API
-  const systemStats = stats || {
-    cpuUsage: 0,
-    memoryUsage: 0,
-    diskUsage: 0,
-    uptime: 0,
+  // Mock system stats for demo
+  const systemStats = {
+    cpuUsage: 23,
+    memoryUsage: 67,
+    diskUsage: 45,
+    uptime: "2d 14h 32m",
     buildQueue: 0,
-    activeConnections: 0
-  };
-  
-  const formatUptime = (seconds: number) => {
-    const days = Math.floor(seconds / 86400);
-    const hours = Math.floor((seconds % 86400) / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    return `${days}d ${hours}h ${minutes}m`;
+    activeConnections: 1
   };
 
   return (
@@ -103,7 +96,7 @@ export default function SystemStats() {
         <div className="flex items-center justify-between pt-2 border-t border-slate-600">
           <span className="text-sm text-slate-300">System Uptime</span>
           <Badge variant="secondary" className="bg-emerald-900 text-emerald-300">
-            {typeof systemStats.uptime === 'number' ? formatUptime(systemStats.uptime) : systemStats.uptime}
+            {systemStats.uptime}
           </Badge>
         </div>
 

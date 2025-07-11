@@ -12,10 +12,7 @@ function Router() {
   return (
     <Switch>
       <Route path="/" component={Dashboard} />
-      <Route path="/dashboard" component={Dashboard} />
       <Route path="/admin" component={AdminPage} />
-      <Route path="/builder" component={Dashboard} />
-      <Route path="/quantum" component={Dashboard} />
       <Route component={NotFound} />
     </Switch>
   );
