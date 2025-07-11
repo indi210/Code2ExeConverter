@@ -195,27 +195,29 @@ International Copyright: REGISTERED
 
 export async function registerRoutes(app: Express): Promise<Server> {
 
-  // OPEN DEVELOPMENT POLICY - UNRESTRICTED ACCESS
+  // DIRECT API ACCESS - NO HEADERS OR RESTRICTIONS
   app.use('/api/*', (req, res, next) => {
-    // Open development headers
-    res.header('Cache-Control', 'no-cache, no-store, must-revalidate');
-    res.header('Pragma', 'no-cache');
-    res.header('Expires', '0');
-    res.header('X-Development-Mode', 'ENABLED');
-    res.header('X-Policy', 'OPEN_DEVELOPMENT');
-    res.header('X-Restrictions', 'NONE');
+    // Remove any CORS-related headers that might exist
+    res.removeHeader('Access-Control-Allow-Origin');
+    res.removeHeader('Access-Control-Allow-Methods');
+    res.removeHeader('Access-Control-Allow-Headers');
+    res.removeHeader('Access-Control-Allow-Credentials');
+    res.removeHeader('Vary');
+    
+    // Minimal headers only
+    res.header('Cache-Control', 'no-cache');
+    res.header('X-API-Status', 'DIRECT');
     
     next();
   });
 
-  // Authentication endpoint - open development access
+  // Authentication endpoint - direct access
   app.post("/api/auth", async (req, res) => {
-    // Open development mode - unrestricted access
+    // Direct access mode - no restrictions
     res.json({ 
       success: true, 
-      message: "Open development access granted",
-      policy: "unrestricted",
-      environment: "development"
+      message: "Direct access enabled",
+      mode: "unrestricted_direct"
     });
   });
 

@@ -4,26 +4,21 @@ import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
 
-// OPEN DEVELOPMENT POLICY - NO RESTRICTIONS
+// NO CORS - DIRECT ACCESS ONLY
 app.use((req, res, next) => {
-  // Open access policy - development mode
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
-  res.header('Access-Control-Allow-Credentials', 'true');
+  // Remove any potential CORS headers
+  res.removeHeader('Access-Control-Allow-Origin');
+  res.removeHeader('Access-Control-Allow-Methods');
+  res.removeHeader('Access-Control-Allow-Headers');
+  res.removeHeader('Access-Control-Allow-Credentials');
+  res.removeHeader('Access-Control-Max-Age');
+  res.removeHeader('Vary');
   
-  // Development headers
-  res.header('Server', 'QUANTUM-DEV-v2.0');
-  res.header('X-Powered-By', 'Quantum-Development');
-  res.header('X-Development-Policy', 'OPEN');
-  res.header('X-Restrictions', 'NONE');
+  // Essential server headers only
+  res.header('Server', 'QUANTUM-DIRECT-v2.0');
+  res.header('X-Powered-By', 'Quantum-NoRestrictions');
   
-  // Handle preflight requests
-  if (req.method === 'OPTIONS') {
-    res.sendStatus(200);
-  } else {
-    next();
-  }
+  next();
 });
 
 app.use(express.json({ limit: '50mb' }));
