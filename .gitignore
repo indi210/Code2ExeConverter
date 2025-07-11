@@ -1,46 +1,6 @@
-# Owner Protection - No unauthorized changes allowed
-# Created by Ervin Remus Radosavlevici
-# System locked against unauthorized modifications
-
-# Dependencies
-node_modules/
-.npm
-.yarn
-
-# Build outputs
-dist/
-builds/
-uploads/
-
-# Environment variables
-.env
-.env.local
-
-# Logs
-*.log
-npm-debug.log*
-
-# Runtime data
-pids
-*.pid
-*.seed
-
-# Coverage directory used by tools like istanbul
-coverage/
-
-# Temporary folders
-tmp/
-temp/
-
-# OS generated files
+node_modules
+dist
 .DS_Store
-Thumbs.db
-
-# IDE files
-.vscode/
-.idea/
-
-# OWNER PROTECTION NOTICE
-# This project belongs to Ervin Remus Radosavlevici
-# Unauthorized modifications are not permitted
-# Git changes and rollbacks are blocked for protection
+server/public
+vite.config.ts.*
+*.tar.gz
