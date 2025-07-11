@@ -14,27 +14,28 @@ export default function NotFound() {
             </div>
             
             <div>
-              <h1 className="text-2xl font-bold text-white mb-2">404 - Page Not Found</h1>
+              <h1 className="text-2xl font-bold text-white mb-2">🔥 Quantum System Ready</h1>
               <p className="text-slate-400">
-                The page you're looking for doesn't exist or has been moved.
+                The Quantum Intel Code2EXE Builder is active. Return to the main dashboard to start building executables.
               </p>
             </div>
 
             <div className="flex gap-3 pt-4">
               <Link href="/">
-                <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                <Button className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white shadow-lg">
                   <Home className="w-4 h-4 mr-2" />
-                  Go Home
+                  Quantum Dashboard
                 </Button>
               </Link>
-              <Button 
-                variant="outline" 
-                onClick={() => window.history.back()}
-                className="border-slate-600 text-slate-300 hover:bg-slate-700"
-              >
-                <ArrowLeft className="w-4 h-4 mr-2" />
-                Go Back
-              </Button>
+              <Link href="/admin">
+                <Button 
+                  variant="outline" 
+                  className="border-slate-600 text-slate-300 hover:bg-slate-700"
+                >
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Admin Panel
+                </Button>
+              </Link>
             </div>
           </div>
         </CardContent>
