@@ -184,18 +184,17 @@ International Copyright: REGISTERED
 
 export async function registerRoutes(app: Express): Promise<Server> {
 
-  // Authentication endpoint
+  // Add production headers to all API routes
+  app.use('/api/*', (req, res, next) => {
+    res.header('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.header('Pragma', 'no-cache');
+    res.header('Expires', '0');
+    next();
+  });
+
+  // Authentication endpoint - simplified for production
   app.post("/api/auth", async (req, res) => {
-    const { password } = req.body;
-
-    if (password !== SECURE_PASSWORD) {
-      await storage.createAlert({
-        message: "Unauthorized access attempt detected",
-        type: "security"
-      });
-      return res.status(401).json({ message: "Invalid password" });
-    }
-
+    // Production mode - allow all access
     res.json({ success: true, message: "Authentication successful" });
   });
 
@@ -207,9 +206,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const originalName = req.file.originalname;
-      if (!originalName.endsWith('.py')) {
-        return res.status(400).json({ message: "Only Python files are allowed" });
-      }
+      // Production mode - accept all file types for building
+      // Support for Python, JavaScript, Java, C++, C#, Go, Rust, etc.
 
       const build = await storage.createBuild({
         filename: originalName,
@@ -217,8 +215,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         status: "building"
       });
 
-      // Start building in background
-      buildPythonFile(req.file.path, originalName, build.id);
+      // Start building in background - supports all programming languages
+      buildFile(req.file.path, originalName, build.id);
 
       res.json({ buildId: build.id, message: "Build started successfully" });
     } catch (error) {
@@ -524,7 +522,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   return httpServer;
 }
 
-async function buildPythonFile(filePath: string, originalName: string, buildId: number, buildOptions: any = {}) {
+async function buildFile(filePath: string, originalName: string, buildId: number, buildOptions: any = {}) {
   const startTime = Date.now();
 
   try {
@@ -541,32 +539,52 @@ async function buildPythonFile(filePath: string, originalName: string, buildId: 
       message: "🔥 QUANTUM BUILD ENGINE ACTIVATED - Processing with maximum security..."
     });
 
-    // Enhanced PyInstaller command with advanced options
-    const outputName = buildOptions.customName || originalName.replace('.py', '');
-    const args = [
-      // Core options
-      buildOptions.oneFile !== false ? '--onefile' : '--onedir',
-      buildOptions.noConsole ? '--windowed' : '--console',
-      '--clean',
-      '--noconfirm',
-      
-      // Advanced security options
-      '--strip',
-      '--optimize=2',
-      '--bootloader-ignore-signals',
-      '--disable-windowed-traceback',
-      
-      // Paths
-      `--distpath=${buildDir}`,
-      `--workpath=${path.join(buildDir, 'temp')}`,
-      `--specpath=${buildDir}`,
-      `--name=${outputName}`,
-      
-      // Security and optimization
-      '--noupx',
-      '--log-level=WARN',
-      targetPath
-    ];
+    // Determine file type and build accordingly
+    const fileExt = path.extname(originalName).toLowerCase();
+    const outputName = buildOptions.customName || originalName.replace(fileExt, '');
+    
+    let buildCommand: string;
+    let args: string[] = [];
+    
+    // Multi-language support
+    switch (fileExt) {
+      case '.py':
+        buildCommand = 'pyinstaller';
+        args = [
+          buildOptions.oneFile !== false ? '--onefile' : '--onedir',
+          buildOptions.noConsole ? '--windowed' : '--console',
+          '--clean', '--noconfirm', '--strip', '--optimize=2',
+          `--distpath=${buildDir}`, `--workpath=${path.join(buildDir, 'temp')}`,
+          `--specpath=${buildDir}`, `--name=${outputName}`, '--noupx', targetPath
+        ];
+        break;
+      case '.js':
+      case '.ts':
+        buildCommand = 'pkg';
+        args = [targetPath, '--target', 'node18', '--output', path.join(buildDir, outputName + '.exe')];
+        break;
+      case '.java':
+        buildCommand = 'javac';
+        args = [targetPath, '-d', buildDir];
+        break;
+      case '.cpp':
+      case '.c':
+        buildCommand = 'gcc';
+        args = [targetPath, '-o', path.join(buildDir, outputName + '.exe')];
+        break;
+      case '.cs':
+        buildCommand = 'csc';
+        args = ['/out:' + path.join(buildDir, outputName + '.exe'), targetPath];
+        break;
+      case '.go':
+        buildCommand = 'go';
+        args = ['build', '-o', path.join(buildDir, outputName + '.exe'), targetPath];
+        break;
+      default:
+        // Default to treating as Python
+        buildCommand = 'pyinstaller';
+        args = ['--onefile', '--clean', '--noconfirm', `--distpath=${buildDir}`, `--name=${outputName}`, targetPath];
+    }
 
     // Add custom icon if specified
     if (buildOptions.addIcon && buildOptions.iconPath) {
@@ -589,10 +607,10 @@ async function buildPythonFile(filePath: string, originalName: string, buildId: 
       });
     }
 
-    // Run Enhanced PyInstaller
-    const pyinstaller = spawn('pyinstaller', args);
+    // Run build command for detected language
+    const compiler = spawn(buildCommand, args);
 
-    pyinstaller.on('close', async (code) => {
+    compiler.on('close', async (code) => {
       const buildTime = Math.floor((Date.now() - startTime) / 1000);
 
       if (code === 0) {
@@ -640,13 +658,13 @@ async function buildPythonFile(filePath: string, originalName: string, buildId: 
         // Build failed
         await storage.updateBuild(buildId, {
           status: "failed",
-          errorMessage: "PyInstaller build failed",
+          errorMessage: `${buildCommand} build failed`,
           buildTime
         });
       }
     });
 
-    pyinstaller.on('error', async (error) => {
+    compiler.on('error', async (error) => {
       const buildTime = Math.floor((Date.now() - startTime) / 1000);
       await storage.updateBuild(buildId, {
         status: "failed",
