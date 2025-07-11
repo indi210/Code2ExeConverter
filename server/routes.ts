@@ -839,9 +839,8 @@ async function buildPythonFile(filePath: string, originalName: string, buildId: 
     // Supports: Python, JavaScript, TypeScript, Java, C/C++, C#, Go, Rust, Ruby, PHP, etc.
     switch (fileExt) {
       case '.py':
-        buildCommand = 'python';
+        buildCommand = '.pythonlibs/bin/pyinstaller';
         args = [
-          '-m', 'pyinstaller',
           buildOptions.oneFile !== false ? '--onefile' : '--onedir',
           buildOptions.noConsole ? '--windowed' : '--console',
           '--clean', '--noconfirm',
@@ -885,8 +884,8 @@ async function buildPythonFile(filePath: string, originalName: string, buildId: 
         break;
       default:
         // Universal fallback - treat as Python (most common)
-        buildCommand = 'python';
-        args = ['-m', 'pyinstaller', '--onefile', '--clean', '--noconfirm', `--distpath=${buildDir}`, `--name=${outputName}`, targetPath];
+        buildCommand = '.pythonlibs/bin/pyinstaller';
+        args = ['--onefile', '--clean', '--noconfirm', `--distpath=${buildDir}`, `--name=${outputName}`, targetPath];
     }
 
     // Add custom icon if specified
