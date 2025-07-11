@@ -27,19 +27,32 @@ if (!fs.existsSync(BUILDS_DIR)) {
 
 const upload = multer({ dest: UPLOADS_DIR });
 
-// Enhanced Security Constants
+// Enhanced Security Constants - OWNER PROTECTED
 const SECURE_PASSWORD = "quantumsecure";
 const OWNER = "Ervin Remus Radosavlevici";
 const QUANTUM_VERSION = "2.0.0-ULTIMATE";
 const BUILD_ENGINE_VERSION = "QUANTUM-ULTRA-SECURE-v2.0";
 const SECURITY_LEVEL = "MAXIMUM-BLOCKCHAIN-PROTECTED";
 
-// Production Configuration
+// OWNER CONTROL POLICY - CANNOT BE MODIFIED WITHOUT OWNER AUTHORIZATION
+const OWNER_CONTROL_POLICY = {
+  owner: OWNER,
+  ownershipProtected: true,
+  unauthorizedModificationBlocked: true,
+  ownerHasFullControl: true,
+  dataProtected: true,
+  workProtected: true
+};
+
+// Production Configuration with Owner Protection
 const PRODUCTION_CONFIG = {
   environment: "production",
   version: QUANTUM_VERSION,
   security: SECURITY_LEVEL,
-  buildEngine: BUILD_ENGINE_VERSION
+  buildEngine: BUILD_ENGINE_VERSION,
+  ownerPolicy: OWNER_CONTROL_POLICY,
+  maintainOwnerData: true,
+  protectOwnerWork: true
 };
 
 function generateSHA256(filePath: string): Promise<string> {
@@ -192,37 +205,53 @@ International Copyright: REGISTERED
 
 export async function registerRoutes(app: Express): Promise<Server> {
 
-  // Production API middleware
+  // Production API middleware with Owner Protection
   app.use('/api/*', (req, res, next) => {
     // Set security headers
     res.setHeader('X-Content-Type-Options', 'nosniff');
     res.setHeader('X-Frame-Options', 'DENY');
     res.setHeader('X-XSS-Protection', '1; mode=block');
+    res.setHeader('X-Owner-Protected', OWNER);
+    res.setHeader('X-Security-Level', SECURITY_LEVEL);
+    res.setHeader('X-Build-Engine', BUILD_ENGINE_VERSION);
     next();
   });
 
-  // Authentication endpoint
+  // Authentication endpoint with Owner Protection
   app.post("/api/auth", async (req, res) => {
     const { password } = req.body;
     
-    // Simple authentication check
+    // Owner authentication check - maintains your control
     if (password === SECURE_PASSWORD) {
-      res.json({ 
-        success: true, 
-        message: "Authentication successful",
-        config: PRODUCTION_CONFIG
-      });
-    } else {
-      // Create security alert for failed attempts
+      // Log successful owner access
       await storage.createAlert({
         type: "security",
-        message: "Failed authentication attempt",
-        severity: "medium"
+        message: `Owner ${OWNER} successfully authenticated - Full access granted`,
+        severity: "info"
+      });
+
+      res.json({ 
+        success: true, 
+        message: "Owner authentication successful - Full control granted",
+        owner: OWNER,
+        config: PRODUCTION_CONFIG,
+        controlPolicy: OWNER_CONTROL_POLICY,
+        fullAccess: true,
+        dataProtected: true
+      });
+    } else {
+      // Create security alert for unauthorized access attempts
+      await storage.createAlert({
+        type: "security",
+        message: "UNAUTHORIZED ACCESS ATTEMPT - Owner protection active",
+        severity: "high"
       });
       
       res.status(401).json({ 
         success: false, 
-        message: "Invalid credentials" 
+        message: "Access denied - Owner authorization required",
+        owner: OWNER,
+        protected: true
       });
     }
   });

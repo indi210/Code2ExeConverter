@@ -59,8 +59,8 @@ export default function AuthModal({ onAuthenticated, onVoiceMessage }: AuthModal
           <div className="w-16 h-16 bg-blue-600 rounded-full flex items-center justify-center mx-auto mb-4">
             <Shield className="w-8 h-8 text-white" />
           </div>
-          <h2 className="text-2xl font-bold text-white mb-2">Quantum Builder Access</h2>
-          <p className="text-slate-400">Enter your secure password to continue</p>
+          <h2 className="text-2xl font-bold text-white mb-2">🔥 Quantum Builder Access - Owner Protected 🔥</h2>
+          <p className="text-slate-400">Created by Ervin Remus Radosavlevici - Enter secure password</p>
         </div>
         
         <div className="space-y-4">
