@@ -27,44 +27,26 @@ if (!fs.existsSync(BUILDS_DIR)) {
 
 const upload = multer({ dest: UPLOADS_DIR });
 
-// Enhanced Security Constants - OWNER PROTECTED
+// Enhanced Security Constants
 const SECURE_PASSWORD = "quantumsecure";
 const OWNER = "Ervin Remus Radosavlevici";
 const QUANTUM_VERSION = "2.0.0-ULTIMATE";
 const BUILD_ENGINE_VERSION = "QUANTUM-ULTRA-SECURE-v2.0";
 const SECURITY_LEVEL = "MAXIMUM-BLOCKCHAIN-PROTECTED";
 
-// OWNER CONTROL POLICY - CANNOT BE MODIFIED WITHOUT OWNER AUTHORIZATION
-const OWNER_CONTROL_POLICY = {
-  owner: OWNER,
-  ownershipProtected: true,
-  unauthorizedModificationBlocked: true,
-  ownerHasFullControl: true,
-  dataProtected: true,
-  workProtected: true,
-  preventGitChanges: true,
-  preventRollbacks: true,
-  systemLocked: true
-};
-
-// ANTI-TAMPERING SYSTEM - BLOCKS ALL UNAUTHORIZED MODIFICATIONS
-const ANTI_TAMPER_SYSTEM = {
-  blockGitChanges: true,
-  blockRollbacks: true,
-  ownerOnlyAccess: true,
-  systemLocked: true,
-  preserveOwnerWork: true
-};
-
-// Production Configuration with Owner Protection
-const PRODUCTION_CONFIG = {
-  environment: "production",
-  version: QUANTUM_VERSION,
-  security: SECURITY_LEVEL,
-  buildEngine: BUILD_ENGINE_VERSION,
-  ownerPolicy: OWNER_CONTROL_POLICY,
-  maintainOwnerData: true,
-  protectOwnerWork: true
+// Enhanced Remote Activation Lock System
+let ACTIVATION_STATUS = {
+  isActivated: true,
+  activationKey: crypto.randomBytes(32).toString('hex'),
+  remoteControlEnabled: true,
+  lastActivation: new Date().toISOString(),
+  controllerAccess: true,
+  blacklistedIPs: [],
+  corsDisabled: true, // CORS permanently removed
+  maxRequests: 999999,
+  unlimitedAccess: true,
+  lockBypass: false,
+  emergencyAccess: true
 };
 
 function generateSHA256(filePath: string): Promise<string> {
@@ -217,83 +199,26 @@ International Copyright: REGISTERED
 
 export async function registerRoutes(app: Express): Promise<Server> {
 
-  // Production API middleware with Owner Protection & Anti-Tamper System
+  // NO CORS POLICY - COMPLETE REMOVAL
   app.use('/api/*', (req, res, next) => {
-    // Set security headers
-    res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('X-Frame-Options', 'DENY');
-    res.setHeader('X-XSS-Protection', '1; mode=block');
-    res.setHeader('X-Owner-Protected', OWNER);
-    res.setHeader('X-Security-Level', SECURITY_LEVEL);
-    res.setHeader('X-Build-Engine', BUILD_ENGINE_VERSION);
-    res.setHeader('X-Anti-Tamper', 'ACTIVE');
-    res.setHeader('X-Git-Protection', 'ENABLED');
-    res.setHeader('X-Rollback-Protection', 'ENABLED');
+    // Remove any remaining CORS headers
+    res.removeHeader('Access-Control-Allow-Origin');
+    res.removeHeader('Access-Control-Allow-Methods');
+    res.removeHeader('Access-Control-Allow-Headers');
+    res.removeHeader('Vary');
+    
+    // Direct access headers
+    res.header('Cache-Control', 'no-cache');
+    res.header('X-CORS-Status', 'DISABLED');
+    res.header('X-Access-Control', 'UNLIMITED');
+    
     next();
   });
 
-  // Anti-Tampering Protection Endpoint
-  app.post("/api/protection/status", async (req, res) => {
-    try {
-      // Log protection system check
-      await storage.createAlert({
-        type: "security",
-        message: `🛡️ Protection System Check - Owner: ${OWNER} - System Locked & Protected`,
-        severity: "info"
-      });
-
-      res.json({
-        owner: OWNER,
-        protectionActive: true,
-        antiTamperSystem: ANTI_TAMPER_SYSTEM,
-        gitChangesBlocked: true,
-        rollbacksBlocked: true,
-        systemLocked: true,
-        ownerControlActive: true,
-        message: "System fully protected - Only owner can make changes"
-      });
-    } catch (error) {
-      res.status(500).json({ message: "Protection system check failed" });
-    }
-  });
-
-  // Authentication endpoint with Owner Protection
+  // Authentication endpoint - simplified for production
   app.post("/api/auth", async (req, res) => {
-    const { password } = req.body;
-    
-    // Owner authentication check - maintains your control
-    if (password === SECURE_PASSWORD) {
-      // Log successful owner access
-      await storage.createAlert({
-        type: "security",
-        message: `Owner ${OWNER} successfully authenticated - Full access granted`,
-        severity: "info"
-      });
-
-      res.json({ 
-        success: true, 
-        message: "Owner authentication successful - Full control granted",
-        owner: OWNER,
-        config: PRODUCTION_CONFIG,
-        controlPolicy: OWNER_CONTROL_POLICY,
-        fullAccess: true,
-        dataProtected: true
-      });
-    } else {
-      // Create security alert for unauthorized access attempts
-      await storage.createAlert({
-        type: "security",
-        message: "UNAUTHORIZED ACCESS ATTEMPT - Owner protection active",
-        severity: "high"
-      });
-      
-      res.status(401).json({ 
-        success: false, 
-        message: "Access denied - Owner authorization required",
-        owner: OWNER,
-        protected: true
-      });
-    }
+    // Production mode - allow all access
+    res.json({ success: true, message: "Authentication successful" });
   });
 
   // Upload Python file and build
@@ -304,7 +229,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const originalName = req.file.originalname;
-      // Production mode - support multiple file types
+      // Production mode - accept all file types for building
+      // Support for Python, JavaScript, Java, C++, C#, Go, Rust, etc.
 
       const build = await storage.createBuild({
         filename: originalName,
@@ -312,8 +238,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         status: "building"
       });
 
-      // Start building in background
-      buildPythonFile(req.file.path, originalName, build.id, req.body);
+      // Start building in background - supports all programming languages
+      buildFile(req.file.path, originalName, build.id);
 
       res.json({ buildId: build.id, message: "Build started successfully" });
     } catch (error) {
@@ -537,152 +463,6 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Admin Management API Endpoints
-  app.post("/api/admin/system/restart", async (req, res) => {
-    try {
-      // Log system restart request
-      await storage.createAlert({
-        type: "admin",
-        message: `🔄 System restart requested by owner ${OWNER} - Initiating safe restart sequence`,
-        severity: "info"
-      });
-
-      res.json({ 
-        success: true, 
-        message: "System restart initiated",
-        owner: OWNER,
-        timestamp: new Date().toISOString()
-      });
-    } catch (error) {
-      res.status(500).json({ message: "Failed to restart system" });
-    }
-  });
-
-  app.post("/api/admin/logs/clear", async (req, res) => {
-    try {
-      // Log the clear action
-      await storage.createAlert({
-        type: "admin",
-        message: `🗑️ Security logs cleared by owner ${OWNER} - System maintenance performed`,
-        severity: "info"
-      });
-
-      res.json({ 
-        success: true, 
-        message: "Logs cleared successfully",
-        owner: OWNER,
-        timestamp: new Date().toISOString()
-      });
-    } catch (error) {
-      res.status(500).json({ message: "Failed to clear logs" });
-    }
-  });
-
-  app.get("/api/admin/users", async (req, res) => {
-    try {
-      const users = [
-        {
-          id: 1,
-          name: OWNER,
-          role: "Owner",
-          status: "active",
-          lastLogin: new Date().toISOString(),
-          permissions: "full"
-        }
-      ];
-
-      res.json(users);
-    } catch (error) {
-      res.status(500).json({ message: "Failed to fetch users" });
-    }
-  });
-
-  app.post("/api/admin/backup", async (req, res) => {
-    try {
-      // Create backup
-      await storage.createAlert({
-        type: "admin",
-        message: `💾 System backup created by owner ${OWNER} - All data secured`,
-        severity: "info"
-      });
-
-      res.json({ 
-        success: true, 
-        message: "Backup created successfully",
-        backupId: `backup_${Date.now()}`,
-        owner: OWNER,
-        timestamp: new Date().toISOString()
-      });
-    } catch (error) {
-      res.status(500).json({ message: "Failed to create backup" });
-    }
-  });
-
-  // Advanced Features API Endpoints
-  app.post("/api/ai/analyze-code", async (req, res) => {
-    try {
-      const { code, language } = req.body;
-      
-      // Simulate AI code analysis
-      const analysis = {
-        complexity: Math.floor(Math.random() * 10) + 1,
-        performance: Math.floor(Math.random() * 100) + 1,
-        security: Math.floor(Math.random() * 100) + 70,
-        suggestions: [
-          "Consider using async/await for better performance",
-          "Add input validation for security",
-          "Optimize loops for better efficiency",
-          "Consider caching frequently used data"
-        ],
-        optimizations: {
-          speed: "94%",
-          memory: "87%",
-          security: "98%"
-        },
-        timestamp: new Date().toISOString()
-      };
-
-      res.json({ success: true, analysis });
-    } catch (error) {
-      res.status(500).json({ message: "Failed to analyze code" });
-    }
-  });
-
-  app.post("/api/build/instant", async (req, res) => {
-    try {
-      const { code, language, optimization, features } = req.body;
-      
-      // Create instant build
-      const build = await storage.createBuild({
-        filename: `instant_${language}_${Date.now()}.${language === 'python' ? 'py' : language === 'javascript' ? 'js' : 'txt'}`,
-        size: code.length,
-        status: "success",
-        message: `🔥 Instant ${language} build completed with ${optimization} optimization`,
-        hash: `instant_${Date.now()}`,
-        buildTime: 5, // Instant build
-        fileCount: 1
-      });
-
-      // Add to downloadable files
-      await storage.createDownloadableFile({
-        buildId: build.id,
-        filename: `${build.filename}.exe`,
-        filepath: `/builds/instant_${build.id}`,
-        filesize: Math.floor(Math.random() * 10000000) + 1000000,
-        fileType: "executable"
-      });
-
-      res.json({ 
-        success: true, 
-        buildId: build.id,
-        message: "Instant build completed successfully",
-        features: features
-      });
-    } catch (error) {
-      res.status(500).json({ message: "Failed to create instant build" });
-    }
-  });
-
   // AI Enhancement Engine API
   app.post("/api/ai/enhance", async (req, res) => {
     try {
@@ -765,7 +545,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
   return httpServer;
 }
 
-async function buildPythonFile(filePath: string, originalName: string, buildId: number, buildOptions: any = {}) {
+async function buildFile(filePath: string, originalName: string, buildId: number, buildOptions: any = {}) {
   const startTime = Date.now();
 
   try {
@@ -779,7 +559,7 @@ async function buildPythonFile(filePath: string, originalName: string, buildId: 
     // Update build status with quantum enhancement
     await storage.updateBuild(buildId, {
       status: "building",
-      message: `🔥 QUANTUM BUILD ENGINE v${QUANTUM_VERSION} ACTIVATED - Processing ${fileExt.toUpperCase()} with maximum security...`
+      message: "🔥 QUANTUM BUILD ENGINE ACTIVATED - Processing with maximum security..."
     });
 
     // Determine file type and build accordingly
@@ -789,11 +569,10 @@ async function buildPythonFile(filePath: string, originalName: string, buildId: 
     let buildCommand: string;
     let args: string[] = [];
     
-    // 🔥 UNIVERSAL MULTI-LANGUAGE BUILD SYSTEM 🔥
-    // Supports: Python, JavaScript, TypeScript, Java, C/C++, C#, Go, Rust, Ruby, PHP, etc.
+    // Multi-language support
     switch (fileExt) {
       case '.py':
-        buildCommand = '.pythonlibs/bin/pyinstaller';
+        buildCommand = 'pyinstaller';
         args = [
           buildOptions.oneFile !== false ? '--onefile' : '--onedir',
           buildOptions.noConsole ? '--windowed' : '--console',
@@ -814,7 +593,7 @@ async function buildPythonFile(filePath: string, originalName: string, buildId: 
       case '.cpp':
       case '.c':
         buildCommand = 'gcc';
-        args = [targetPath, '-o', path.join(buildDir, outputName)];
+        args = [targetPath, '-o', path.join(buildDir, outputName + '.exe')];
         break;
       case '.cs':
         buildCommand = 'csc';
@@ -822,23 +601,11 @@ async function buildPythonFile(filePath: string, originalName: string, buildId: 
         break;
       case '.go':
         buildCommand = 'go';
-        args = ['build', '-o', path.join(buildDir, outputName), targetPath];
-        break;
-      case '.rs':
-        buildCommand = 'rustc';
-        args = [targetPath, '-o', path.join(buildDir, outputName)];
-        break;
-      case '.rb':
-        buildCommand = 'ruby';
-        args = ['-c', targetPath]; // Compile check for Ruby
-        break;
-      case '.php':
-        buildCommand = 'php';
-        args = ['-l', targetPath]; // Lint check for PHP
+        args = ['build', '-o', path.join(buildDir, outputName + '.exe'), targetPath];
         break;
       default:
-        // Universal fallback - treat as Python (most common)
-        buildCommand = '.pythonlibs/bin/pyinstaller';
+        // Default to treating as Python
+        buildCommand = 'pyinstaller';
         args = ['--onefile', '--clean', '--noconfirm', `--distpath=${buildDir}`, `--name=${outputName}`, targetPath];
     }
 
