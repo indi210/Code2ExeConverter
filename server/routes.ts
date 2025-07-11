@@ -184,11 +184,9 @@ International Copyright: REGISTERED
 
 export async function registerRoutes(app: Express): Promise<Server> {
 
-  // Add production headers to all API routes
+  // Direct API access - no restrictions
   app.use('/api/*', (req, res, next) => {
-    res.header('Cache-Control', 'no-cache, no-store, must-revalidate');
-    res.header('Pragma', 'no-cache');
-    res.header('Expires', '0');
+    res.header('Cache-Control', 'no-cache');
     next();
   });
 

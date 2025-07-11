@@ -4,21 +4,19 @@ import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
 
-// Remove CORS restrictions and add production headers
+// NO CORS RESTRICTIONS - Direct access enabled
 app.use((req, res, next) => {
-  res.header('Access-Control-Allow-Origin', '*');
-  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
-  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization, Cache-Control, Pragma');
-  res.header('Access-Control-Allow-Credentials', 'true');
-  res.header('X-Frame-Options', 'ALLOWALL');
-  res.header('X-Content-Type-Options', 'nosniff');
-  res.header('Referrer-Policy', 'no-referrer-when-downgrade');
+  // Remove all CORS headers completely
+  res.removeHeader('Access-Control-Allow-Origin');
+  res.removeHeader('Access-Control-Allow-Methods');
+  res.removeHeader('Access-Control-Allow-Headers');
+  res.removeHeader('Access-Control-Allow-Credentials');
   
-  if (req.method === 'OPTIONS') {
-    res.sendStatus(200);
-  } else {
-    next();
-  }
+  // Essential headers only
+  res.header('Server', 'QUANTUM-v2.0');
+  res.header('X-Powered-By', 'Quantum-Intelligence');
+  
+  next();
 });
 
 app.use(express.json({ limit: '50mb' }));
