@@ -1,12 +1,16 @@
-import { Atom, Home, Settings, History, Shield, AlertTriangle } from "lucide-react";
+import { Atom, Home, Settings, History, Shield, AlertTriangle, UserCog } from "lucide-react";
+import { Link, useLocation } from "wouter";
 
 export default function Sidebar() {
+  const [location] = useLocation();
+  
   const navigationItems = [
-    { icon: Home, label: "Dashboard", active: true },
-    { icon: Settings, label: "Build Tools", active: false },
-    { icon: History, label: "Build History", active: false },
-    { icon: Shield, label: "Security", active: false },
-    { icon: AlertTriangle, label: "Alerts", active: false },
+    { icon: Home, label: "Dashboard", path: "/", active: location === "/" },
+    { icon: UserCog, label: "Admin Panel", path: "/admin", active: location === "/admin" },
+    { icon: Settings, label: "Build Tools", path: "/tools", active: location === "/tools" },
+    { icon: History, label: "Build History", path: "/history", active: location === "/history" },
+    { icon: Shield, label: "Security", path: "/security", active: location === "/security" },
+    { icon: AlertTriangle, label: "Alerts", path: "/alerts", active: location === "/alerts" },
   ];
 
   return (
@@ -28,9 +32,9 @@ export default function Sidebar() {
           {navigationItems.map((item) => {
             const Icon = item.icon;
             return (
-              <a
+              <Link
                 key={item.label}
-                href="#"
+                to={item.path}
                 className={`flex items-center space-x-3 px-3 py-2 rounded-lg transition-colors ${
                   item.active
                     ? "bg-blue-600 text-white"
@@ -39,7 +43,7 @@ export default function Sidebar() {
               >
                 <Icon className="w-5 h-5" />
                 <span>{item.label}</span>
-              </a>
+              </Link>
             );
           })}
         </nav>

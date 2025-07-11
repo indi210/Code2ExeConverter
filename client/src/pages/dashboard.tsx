@@ -15,6 +15,8 @@ import SystemStats from "@/components/system-stats";
 import QuantumAnalytics from "@/components/quantum-analytics";
 import AIEnhancementEngine from "@/components/ai-enhancement-engine";
 import ProfessionalOverview from "@/components/professional-overview";
+import AdvancedFeatures from "@/components/advanced-features";
+import MegaDashboard from "@/components/mega-dashboard";
 import { Clock, Bell, UserCircle } from "lucide-react";
 
 export default function Dashboard() {
@@ -89,46 +91,14 @@ export default function Dashboard() {
             onDismiss={() => setShowVoiceNotification(false)}
           />
 
-          <ProfessionalOverview />
-
-          <BuildInterface
+          <MegaDashboard
+            currentBuildId={currentBuildId}
             onBuildStart={(buildId) => {
               setCurrentBuildId(buildId);
               showVoiceMessage("Build process initiated. Preparing executable...");
             }}
             onVoiceMessage={showVoiceMessage}
           />
-
-          <BuildStatus buildId={currentBuildId} />
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <SecurityPanel buildId={currentBuildId} />
-            <DownloadCenter buildId={currentBuildId} />
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <AISuggestions 
-              buildId={currentBuildId} 
-              onVoiceMessage={showVoiceMessage}
-            />
-            <AIEnhancementEngine 
-              buildId={currentBuildId} 
-              onVoiceMessage={showVoiceMessage}
-            />
-            <SecurityStatus />
-          </div>
-
-          <QuantumAnalytics />
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <EmailAlerts />
-            <BlockchainVerification buildId={currentBuildId} />
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <SystemStats />
-            <BuildHistory />
-          </div>
         </main>
       </div>
     </div>
