@@ -10,18 +10,29 @@ export default function QuantumAnalytics() {
     refetchInterval: 5000,
   });
 
-  const performanceMetrics = [
-    { label: "Build Success Rate", value: 98.7, icon: TrendingUp, color: "text-green-400" },
-    { label: "Security Score", value: 100, icon: Shield, color: "text-blue-400" },
-    { label: "AI Optimization", value: 94.2, icon: Brain, color: "text-purple-400" },
-    { label: "System Performance", value: 91.8, icon: Zap, color: "text-yellow-400" }
+  // Use real analytics data from API
+  const performanceMetrics = analytics?.performanceMetrics ? [
+    { label: "Build Success Rate", value: analytics.performanceMetrics.buildSuccessRate, icon: TrendingUp, color: "text-green-400" },
+    { label: "Security Score", value: analytics.performanceMetrics.securityScore, icon: Shield, color: "text-blue-400" },
+    { label: "AI Optimization", value: analytics.performanceMetrics.aiOptimization, icon: Brain, color: "text-purple-400" },
+    { label: "System Performance", value: analytics.performanceMetrics.systemPerformance, icon: Zap, color: "text-yellow-400" }
+  ] : [
+    { label: "Build Success Rate", value: 0, icon: TrendingUp, color: "text-green-400" },
+    { label: "Security Score", value: 0, icon: Shield, color: "text-blue-400" },
+    { label: "AI Optimization", value: 0, icon: Brain, color: "text-purple-400" },
+    { label: "System Performance", value: 0, icon: Zap, color: "text-yellow-400" }
   ];
 
-  const realTimeStats = [
-    { label: "Active Builds", value: "3", change: "+2", trend: "up" },
+  const realTimeStats = analytics?.realTimeStats ? [
+    { label: "Active Builds", value: analytics.realTimeStats.activeBuilds.toString(), change: "+2", trend: "up" },
+    { label: "Security Alerts", value: analytics.realTimeStats.securityAlerts.toString(), change: "0", trend: "stable" },
+    { label: "AI Enhancements", value: analytics.realTimeStats.aiEnhancements.toString(), change: "+5", trend: "up" },
+    { label: "Blockchain Verifications", value: analytics.realTimeStats.blockchainVerifications.toString(), change: "+3", trend: "up" }
+  ] : [
+    { label: "Active Builds", value: "0", change: "0", trend: "stable" },
     { label: "Security Alerts", value: "0", change: "0", trend: "stable" },
-    { label: "AI Enhancements", value: "15", change: "+5", trend: "up" },
-    { label: "Blockchain Verifications", value: "8", change: "+3", trend: "up" }
+    { label: "AI Enhancements", value: "0", change: "0", trend: "stable" },
+    { label: "Blockchain Verifications", value: "0", change: "0", trend: "stable" }
   ];
 
   return (
