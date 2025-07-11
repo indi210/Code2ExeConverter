@@ -34,13 +34,12 @@ const QUANTUM_VERSION = "2.0.0-ULTIMATE";
 const BUILD_ENGINE_VERSION = "QUANTUM-ULTRA-SECURE-v2.0";
 const SECURITY_LEVEL = "MAXIMUM-BLOCKCHAIN-PROTECTED";
 
-// COMPLETELY OPEN CONFIGURATION
-const OPEN_CONFIG = {
-  environment: "unrestricted",
-  policy: "no_limitations",
-  maxRequests: "unlimited", 
-  accessLevel: "unlimited",
-  allRestrictionsDisabled: true
+// Production Configuration
+const PRODUCTION_CONFIG = {
+  environment: "production",
+  version: QUANTUM_VERSION,
+  security: SECURITY_LEVEL,
+  buildEngine: BUILD_ENGINE_VERSION
 };
 
 function generateSHA256(filePath: string): Promise<string> {
@@ -193,17 +192,39 @@ International Copyright: REGISTERED
 
 export async function registerRoutes(app: Express): Promise<Server> {
 
-  // NO RESTRICTIONS - COMPLETELY OPEN ACCESS
+  // Production API middleware
   app.use('/api/*', (req, res, next) => {
+    // Set security headers
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
     next();
   });
 
-  // Authentication endpoint - no auth required
+  // Authentication endpoint
   app.post("/api/auth", async (req, res) => {
-    res.json({ 
-      success: true, 
-      message: "Open access - no authentication required"
-    });
+    const { password } = req.body;
+    
+    // Simple authentication check
+    if (password === SECURE_PASSWORD) {
+      res.json({ 
+        success: true, 
+        message: "Authentication successful",
+        config: PRODUCTION_CONFIG
+      });
+    } else {
+      // Create security alert for failed attempts
+      await storage.createAlert({
+        type: "security",
+        message: "Failed authentication attempt",
+        severity: "medium"
+      });
+      
+      res.status(401).json({ 
+        success: false, 
+        message: "Invalid credentials" 
+      });
+    }
   });
 
   // Upload Python file and build
@@ -214,8 +235,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
 
       const originalName = req.file.originalname;
-      // Production mode - accept all file types for building
-      // Support for Python, JavaScript, Java, C++, C#, Go, Rust, etc.
+      // Production mode - support multiple file types
 
       const build = await storage.createBuild({
         filename: originalName,
@@ -223,8 +243,8 @@ export async function registerRoutes(app: Express): Promise<Server> {
         status: "building"
       });
 
-      // Start building in background - supports all programming languages
-      buildFile(req.file.path, originalName, build.id);
+      // Start building in background
+      buildPythonFile(req.file.path, originalName, build.id);
 
       res.json({ buildId: build.id, message: "Build started successfully" });
     } catch (error) {
