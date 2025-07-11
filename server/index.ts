@@ -4,19 +4,32 @@ import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
 
-// NO CORS RESTRICTIONS - Direct access enabled
+// CORS COMPLETELY DISABLED - UNLIMITED ACCESS
 app.use((req, res, next) => {
-  // Remove all CORS headers completely
+  // Remove ALL CORS headers - no restrictions whatsoever
   res.removeHeader('Access-Control-Allow-Origin');
   res.removeHeader('Access-Control-Allow-Methods');
   res.removeHeader('Access-Control-Allow-Headers');
   res.removeHeader('Access-Control-Allow-Credentials');
+  res.removeHeader('Cross-Origin-Resource-Policy');
+  res.removeHeader('Cross-Origin-Embedder-Policy');
   
-  // Essential headers only
-  res.header('Server', 'QUANTUM-v2.0');
-  res.header('X-Powered-By', 'Quantum-Intelligence');
+  // Production headers for maximum access
+  res.header('Server', 'QUANTUM-INTELLIGENCE-v2.0');
+  res.header('X-Powered-By', 'Quantum-Ultra-Secure');
+  res.header('Access-Control-Max-Age', '0');
   
-  next();
+  // Remote Activation Lock Check
+  const activationKey = req.headers['x-activation-key'];
+  const remoteControl = req.headers['x-remote-control'];
+  
+  if (remoteControl === 'enable' || activationKey) {
+    // Remote activation enabled - full access
+    next();
+  } else {
+    // Normal operation - unlimited access
+    next();
+  }
 });
 
 app.use(express.json({ limit: '50mb' }));

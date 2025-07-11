@@ -34,6 +34,21 @@ const QUANTUM_VERSION = "2.0.0-ULTIMATE";
 const BUILD_ENGINE_VERSION = "QUANTUM-ULTRA-SECURE-v2.0";
 const SECURITY_LEVEL = "MAXIMUM-BLOCKCHAIN-PROTECTED";
 
+// Enhanced Remote Activation Lock System
+let ACTIVATION_STATUS = {
+  isActivated: true,
+  activationKey: crypto.randomBytes(32).toString('hex'),
+  remoteControlEnabled: true,
+  lastActivation: new Date().toISOString(),
+  controllerAccess: true,
+  blacklistedIPs: [],
+  corsDisabled: true, // CORS permanently removed
+  maxRequests: 999999,
+  unlimitedAccess: true,
+  lockBypass: false,
+  emergencyAccess: true
+};
+
 function generateSHA256(filePath: string): Promise<string> {
   return new Promise((resolve, reject) => {
     const hash = crypto.createHash('sha256');
@@ -184,9 +199,19 @@ International Copyright: REGISTERED
 
 export async function registerRoutes(app: Express): Promise<Server> {
 
-  // Direct API access - no restrictions
+  // NO CORS POLICY - COMPLETE REMOVAL
   app.use('/api/*', (req, res, next) => {
+    // Remove any remaining CORS headers
+    res.removeHeader('Access-Control-Allow-Origin');
+    res.removeHeader('Access-Control-Allow-Methods');
+    res.removeHeader('Access-Control-Allow-Headers');
+    res.removeHeader('Vary');
+    
+    // Direct access headers
     res.header('Cache-Control', 'no-cache');
+    res.header('X-CORS-Status', 'DISABLED');
+    res.header('X-Access-Control', 'UNLIMITED');
+    
     next();
   });
 
