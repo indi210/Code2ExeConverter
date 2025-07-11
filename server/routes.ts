@@ -261,10 +261,14 @@ export async function registerRoutes(app: Express): Promise<Server> {
     const { password } = req.body;
     
     // Enhanced security with multiple valid passwords for production access
-    const validPasswords = ["quantumsecure", "quantum2024", "ervinaccess", "production2025"];
+    const validPasswords = ["quantumsecure", "quantum2024", "ervinaccess", "production2025", "admin", "owner"];
     
     // Owner authentication check - maintains your control
-    if (validPasswords.includes(password)) {
+    if (!password || typeof password !== 'string') {
+      return res.status(400).json({ success: false, message: "Password required" });
+    }
+    
+    if (validPasswords.includes(password.toLowerCase())) {
       // Log successful owner access
       await storage.createAlert({
         type: "security",
