@@ -4,30 +4,24 @@ import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
 
-// CORS COMPLETELY DISABLED - UNLIMITED ACCESS
+// OPEN DEVELOPMENT POLICY - NO RESTRICTIONS
 app.use((req, res, next) => {
-  // Remove ALL CORS headers - no restrictions whatsoever
-  res.removeHeader('Access-Control-Allow-Origin');
-  res.removeHeader('Access-Control-Allow-Methods');
-  res.removeHeader('Access-Control-Allow-Headers');
-  res.removeHeader('Access-Control-Allow-Credentials');
-  res.removeHeader('Cross-Origin-Resource-Policy');
-  res.removeHeader('Cross-Origin-Embedder-Policy');
+  // Open access policy - development mode
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE, OPTIONS, PATCH');
+  res.header('Access-Control-Allow-Headers', 'Origin, X-Requested-With, Content-Type, Accept, Authorization');
+  res.header('Access-Control-Allow-Credentials', 'true');
   
-  // Production headers for maximum access
-  res.header('Server', 'QUANTUM-INTELLIGENCE-v2.0');
-  res.header('X-Powered-By', 'Quantum-Ultra-Secure');
-  res.header('Access-Control-Max-Age', '0');
+  // Development headers
+  res.header('Server', 'QUANTUM-DEV-v2.0');
+  res.header('X-Powered-By', 'Quantum-Development');
+  res.header('X-Development-Policy', 'OPEN');
+  res.header('X-Restrictions', 'NONE');
   
-  // Remote Activation Lock Check
-  const activationKey = req.headers['x-activation-key'];
-  const remoteControl = req.headers['x-remote-control'];
-  
-  if (remoteControl === 'enable' || activationKey) {
-    // Remote activation enabled - full access
-    next();
+  // Handle preflight requests
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
   } else {
-    // Normal operation - unlimited access
     next();
   }
 });

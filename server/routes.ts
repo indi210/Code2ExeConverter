@@ -34,19 +34,15 @@ const QUANTUM_VERSION = "2.0.0-ULTIMATE";
 const BUILD_ENGINE_VERSION = "QUANTUM-ULTRA-SECURE-v2.0";
 const SECURITY_LEVEL = "MAXIMUM-BLOCKCHAIN-PROTECTED";
 
-// Enhanced Remote Activation Lock System
-let ACTIVATION_STATUS = {
-  isActivated: true,
-  activationKey: crypto.randomBytes(32).toString('hex'),
-  remoteControlEnabled: true,
-  lastActivation: new Date().toISOString(),
-  controllerAccess: true,
-  blacklistedIPs: [],
-  corsDisabled: true, // CORS permanently removed
-  maxRequests: 999999,
-  unlimitedAccess: true,
-  lockBypass: false,
-  emergencyAccess: true
+// Open Development Configuration
+const DEVELOPMENT_CONFIG = {
+  environment: "open_development",
+  policy: "unrestricted_access",
+  corsEnabled: true,
+  maxRequests: "unlimited",
+  accessLevel: "full",
+  restrictionsDisabled: true,
+  openSourcePolicy: true
 };
 
 function generateSHA256(filePath: string): Promise<string> {
@@ -199,26 +195,28 @@ International Copyright: REGISTERED
 
 export async function registerRoutes(app: Express): Promise<Server> {
 
-  // NO CORS POLICY - COMPLETE REMOVAL
+  // OPEN DEVELOPMENT POLICY - UNRESTRICTED ACCESS
   app.use('/api/*', (req, res, next) => {
-    // Remove any remaining CORS headers
-    res.removeHeader('Access-Control-Allow-Origin');
-    res.removeHeader('Access-Control-Allow-Methods');
-    res.removeHeader('Access-Control-Allow-Headers');
-    res.removeHeader('Vary');
-    
-    // Direct access headers
-    res.header('Cache-Control', 'no-cache');
-    res.header('X-CORS-Status', 'DISABLED');
-    res.header('X-Access-Control', 'UNLIMITED');
+    // Open development headers
+    res.header('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.header('Pragma', 'no-cache');
+    res.header('Expires', '0');
+    res.header('X-Development-Mode', 'ENABLED');
+    res.header('X-Policy', 'OPEN_DEVELOPMENT');
+    res.header('X-Restrictions', 'NONE');
     
     next();
   });
 
-  // Authentication endpoint - simplified for production
+  // Authentication endpoint - open development access
   app.post("/api/auth", async (req, res) => {
-    // Production mode - allow all access
-    res.json({ success: true, message: "Authentication successful" });
+    // Open development mode - unrestricted access
+    res.json({ 
+      success: true, 
+      message: "Open development access granted",
+      policy: "unrestricted",
+      environment: "development"
+    });
   });
 
   // Upload Python file and build
